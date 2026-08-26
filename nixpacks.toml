@@ -1,0 +1,5 @@
+# Nixpacks configuration forcing Railway to use Dockerfile builds for this monorepo.
+providers = ["dockerfile"]
+
+[build]
+dockerfilePath = "Dockerfile"
