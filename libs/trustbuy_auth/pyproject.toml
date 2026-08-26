@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trustbuy-auth"
+version = "0.1.0"
+description = "TrustBuy AI - JWT (RS256) issuance/verification, Argon2id hashing, RBAC dependencies"
+requires-python = ">=3.11"
+dependencies = [
+    "pyjwt[crypto]>=2.8,<3",
+    "argon2-cffi>=23.1,<24",
+    "cryptography>=42.0",
+    "fastapi>=0.111,<1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["trustbuy_auth*"]

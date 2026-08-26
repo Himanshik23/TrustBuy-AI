@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trustbuy-agent-sdk"
+version = "0.1.0"
+description = "TrustBuy AI - shared contracts for intelligence agents, the Evidence Fusion Engine, and marketplace source adapters"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7,<3",
+]
+
+[project.optional-dependencies]
+# Only needed when ANTHROPIC_API_KEY is actually set (llm.py imports this
+# lazily) - services that only ever run in mock mode don't pay for it.
+anthropic = ["anthropic>=0.40,<1"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["trustbuy_agent_sdk*"]

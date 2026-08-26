@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens - docs/UI_UX_WIREFRAMES.md §1. HSL triplets (no hsl()
+   wrapper) so tailwind.config.ts can compose them as hsl(var(--x)). */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 15% 12%;
+    --surface: 0 0% 100%;
+    --surface-elevated: 240 20% 98%;
+
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 15% 12%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 243 75% 59%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 243 75% 59%;
+
+    /* The one place strong color carries meaning - never reused elsewhere. */
+    --verdict-buy: 142 71% 40%;
+    --verdict-caution: 38 92% 50%;
+    --verdict-avoid: 0 72% 51%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 20% 7%;
+    --foreground: 210 20% 96%;
+    --surface: 224 18% 10%;
+    --surface-elevated: 224 16% 13%;
+
+    --primary: 243 80% 68%;
+    --primary-foreground: 224 20% 7%;
+    --secondary: 224 14% 16%;
+    --secondary-foreground: 210 20% 96%;
+    --muted: 224 14% 16%;
+    --muted-foreground: 220 9% 65%;
+    --accent: 243 80% 68%;
+    --accent-foreground: 224 20% 7%;
+    --destructive: 0 63% 55%;
+    --destructive-foreground: 210 20% 96%;
+
+    --border: 224 14% 18%;
+    --input: 224 14% 18%;
+    --ring: 243 80% 68%;
+
+    --verdict-buy: 142 60% 50%;
+    --verdict-caution: 38 92% 58%;
+    --verdict-avoid: 0 70% 62%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+}

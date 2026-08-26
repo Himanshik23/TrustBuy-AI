@@ -1,0 +1,24 @@
+# Shared lint config for every Python package in libs/ and services/.
+# Run from repo root: `ruff check libs services` (see .github/workflows/ci.yml).
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[lint.flake8-bugbear]
+# FastAPI's dependency-injection pattern (`db: AsyncSession = Depends(get_db)`)
+# is exactly the "function call in a default argument" shape B008 flags -
+# these three are the standard, deliberate exceptions for FastAPI codebases.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Cookie",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.File",
+    "trustbuy_auth.dependencies.require_role",
+    "trustbuy_auth.require_role",
+]
+
+[lint.isort]
+known-first-party = ["trustbuy_common", "trustbuy_db", "trustbuy_auth", "trustbuy_agent_sdk", "app"]

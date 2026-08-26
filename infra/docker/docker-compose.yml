@@ -1,0 +1,213 @@
+# TrustBuy AI - local development stack (Phase 1).
+# Run from the repo root: docker compose --env-file .env -f infra/docker/docker-compose.yml up --build
+# See ARCHITECTURE.md §7-8 for the target folder/deployment layout this mirrors.
+
+name: trustbuy-ai-platform
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-trustbuy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trustbuy_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-trustbuy}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trustbuy}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks: [trustbuy]
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks: [trustbuy]
+
+  # Vector store (ARCHITECTURE.md §1). Not consumed by any service until
+  # Phase 2's Product/Review Intelligence agents - started here now so the
+  # full target local stack is up from Phase 1, per ROADMAP.md.
+  chroma:
+    image: chromadb/chroma:0.5.20
+    ports:
+      - "${CHROMA_PORT:-8010}:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    networks: [trustbuy]
+
+  auth-service:
+    build:
+      context: ../..
+      dockerfile: services/auth-service/Dockerfile
+    environment:
+      SERVICE_NAME: auth-service
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-trustbuy}:${POSTGRES_PASSWORD:-trustbuy_dev_password}@postgres:5432/${POSTGRES_DB:-trustbuy}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-trustbuy}:${POSTGRES_PASSWORD:-trustbuy_dev_password}@postgres:5432/${POSTGRES_DB:-trustbuy}
+      JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/keys/private.pem}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/keys/public.pem}
+      ACCESS_TOKEN_TTL_SECONDS: ${ACCESS_TOKEN_TTL_SECONDS:-900}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-30}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost:3010}
+    volumes:
+      - jwt_keys:/keys
+    ports:
+      - "${AUTH_SERVICE_PORT:-8091}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks: [trustbuy]
+
+  catalog-service:
+    build:
+      context: ../..
+      dockerfile: services/catalog-service/Dockerfile
+    environment:
+      SERVICE_NAME: catalog-service
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-trustbuy}:${POSTGRES_PASSWORD:-trustbuy_dev_password}@postgres:5432/${POSTGRES_DB:-trustbuy}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/keys/public.pem}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost:3010}
+      # Unset by default -> MockLLMProvider (DECISIONS.md ADR-010). Set in
+      # .env to enable real explanations/Copilot with zero code changes.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5}
+      # Shares community-service's upload volume/StorageProvider (ADR-012).
+      # PDF report exports don't need a serving URL (returned directly in
+      # the response body), but investigation-image uploads do (displayed
+      # as the product photo), so this points at community-service's
+      # already-working /uploads static mount on the same shared volume
+      # rather than standing up a second static file server here.
+      TRUSTBUY_LOCAL_STORAGE_DIR: /data/uploads
+      TRUSTBUY_LOCAL_STORAGE_PUBLIC_URL: ${TRUSTBUY_LOCAL_STORAGE_PUBLIC_URL:-http://localhost:8093/uploads}
+      TRUSTBUY_S3_BUCKET: ${TRUSTBUY_S3_BUCKET:-}
+      AWS_REGION: ${AWS_REGION:-}
+    volumes:
+      - jwt_keys:/keys:ro
+      - report_uploads:/data/uploads
+    ports:
+      - "${CATALOG_SERVICE_PORT:-8092}:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks: [trustbuy]
+
+  community-service:
+    build:
+      context: ../..
+      dockerfile: services/community-service/Dockerfile
+    environment:
+      SERVICE_NAME: community-service
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-trustbuy}:${POSTGRES_PASSWORD:-trustbuy_dev_password}@postgres:5432/${POSTGRES_DB:-trustbuy}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/keys/public.pem}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost:3010}
+      TRUSTBUY_LOCAL_STORAGE_DIR: /data/uploads
+      TRUSTBUY_LOCAL_STORAGE_PUBLIC_URL: ${TRUSTBUY_LOCAL_STORAGE_PUBLIC_URL:-http://localhost:8093/uploads}
+      # Unset by default -> LocalDiskStorageProvider (DECISIONS.md ADR-012).
+      TRUSTBUY_S3_BUCKET: ${TRUSTBUY_S3_BUCKET:-}
+      AWS_REGION: ${AWS_REGION:-}
+    volumes:
+      - jwt_keys:/keys:ro
+      - report_uploads:/data/uploads
+    ports:
+      - "${COMMUNITY_SERVICE_PORT:-8093}:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    networks: [trustbuy]
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      SERVICE_NAME: gateway
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      LOG_LEVEL: INFO
+      AUTH_SERVICE_URL: http://auth-service:8000
+      CATALOG_SERVICE_URL: http://catalog-service:8000
+      COMMUNITY_SERVICE_URL: http://community-service:8000
+      REDIS_URL: redis://redis:6379/0
+      RATE_LIMIT_REQUESTS: 120
+      RATE_LIMIT_WINDOW_SECONDS: 60
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost:3010}
+    ports:
+      - "${GATEWAY_PORT:-8090}:8000"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      community-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks: [trustbuy]
+
+  web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8090/api/v1}
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8090/api/v1}
+    ports:
+      - "${WEB_PORT:-3010}:3000"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks: [trustbuy]
+
+networks:
+  trustbuy:
+    name: trustbuy-ai-net
+
+volumes:
+  postgres_data:
+    name: trustbuy_ai_postgres_data
+  chroma_data:
+    name: trustbuy_ai_chroma_data
+  jwt_keys:
+    name: trustbuy_ai_jwt_keys
+  report_uploads:
+    name: trustbuy_ai_report_uploads
