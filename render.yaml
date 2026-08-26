@@ -1,0 +1,94 @@
+services:
+  # API Gateway (Exposed publicly to the internet and connected to Next.js Vercel frontend)
+  - type: web
+    name: trustbuy-gateway
+    env: docker
+    dockerfilePath: services/gateway/Dockerfile
+    context: .
+    healthCheckPath: /health
+    envVars:
+      - key: SERVICE_NAME
+        value: gateway
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: AUTH_SERVICE_URL
+        value: http://trustbuy-auth:8000
+      - key: CATALOG_SERVICE_URL
+        value: http://trustbuy-catalog:8000
+      - key: COMMUNITY_SERVICE_URL
+        value: http://trustbuy-community:8000
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: trustbuy-redis
+          property: connectionString
+      - key: CORS_ALLOW_ORIGINS
+        value: https://web-kappa-bice-58.vercel.app,https://web-h6td8kdlx-himanshikansal80-6626s-projects.vercel.app
+
+  # Auth Microservice (Handles JWT authentication, user registration, and Alembic DB migrations)
+  - type: pserv
+    name: trustbuy-auth
+    env: docker
+    dockerfilePath: services/auth-service/Dockerfile
+    context: .
+    envVars:
+      - key: SERVICE_NAME
+        value: auth-service
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: trustbuy-postgres
+          property: connectionString
+      - key: DATABASE_URL_SYNC
+        fromDatabase:
+          name: trustbuy-postgres
+          property: connectionString
+      - key: CORS_ALLOW_ORIGINS
+        value: https://web-kappa-bice-58.vercel.app,https://web-h6td8kdlx-himanshikansal80-6626s-projects.vercel.app
+
+  # Catalog & AI Microservice (Handles product URL extraction, AI agents, scoring engine, and LLM output)
+  - type: pserv
+    name: trustbuy-catalog
+    env: docker
+    dockerfilePath: services/catalog-service/Dockerfile
+    context: .
+    envVars:
+      - key: SERVICE_NAME
+        value: catalog-service
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: trustbuy-postgres
+          property: connectionString
+      - key: CORS_ALLOW_ORIGINS
+        value: https://web-kappa-bice-58.vercel.app,https://web-h6td8kdlx-himanshikansal80-6626s-projects.vercel.app
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
+
+  # Community Microservice (Handles community trust reports and upload management)
+  - type: pserv
+    name: trustbuy-community
+    env: docker
+    dockerfilePath: services/community-service/Dockerfile
+    context: .
+    envVars:
+      - key: SERVICE_NAME
+        value: community-service
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: trustbuy-postgres
+          property: connectionString
+      - key: CORS_ALLOW_ORIGINS
+        value: https://web-kappa-bice-58.vercel.app,https://web-h6td8kdlx-himanshikansal80-6626s-projects.vercel.app
+
+databases:
+  # PostgreSQL 16 Database
+  - name: trustbuy-postgres
+    databaseName: trustbuy
+    user: trustbuy
