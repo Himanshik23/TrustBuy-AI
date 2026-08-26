@@ -31,7 +31,7 @@ export default function DashboardPage() {
   if (!user) return null;
 
   return (
-    <div className="container flex flex-col gap-8 py-10">
+    <div className="container flex flex-col gap-8 px-4 sm:px-6 py-6 sm:py-10">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user.display_name}</h1>
         <p className="text-muted-foreground">Paste a product link below to start a new investigation.</p>
@@ -57,7 +57,7 @@ export default function DashboardPage() {
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden />
             <div>
               <CardTitle className="text-base">Account secured</CardTitle>
-              <CardDescription>{user.email}</CardDescription>
+              <CardDescription className="truncate">{user.email}</CardDescription>
             </div>
           </CardHeader>
         </Card>
@@ -106,9 +106,9 @@ export default function DashboardPage() {
             <Link
               key={inv.investigation_id}
               href={`/investigate/${inv.investigation_id}`}
-              className="flex items-center justify-between gap-4 px-6 py-4 text-sm hover:bg-secondary"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 px-4 sm:px-6 py-4 text-sm hover:bg-secondary"
             >
-              <span className="truncate text-foreground">{inv.source_url}</span>
+              <span className="truncate text-foreground max-w-full sm:max-w-md">{inv.source_url}</span>
               <Badge variant={inv.status === "failed" ? "avoid" : inv.status === "completed" ? "buy" : "outline"}>
                 {STATUS_LABEL[inv.status] ?? inv.status}
               </Badge>

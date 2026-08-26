@@ -15,13 +15,13 @@ const STATS = [
 
 export function StatsSection() {
   return (
-    <section className="relative overflow-hidden py-24">
+    <section className="relative overflow-hidden py-12 sm:py-24">
       <div
         className="pointer-events-none absolute inset-0 opacity-60 dark:opacity-50"
         style={{ background: "radial-gradient(60% 60% at 50% 40%, hsl(var(--primary) / 0.1), transparent 70%)" }}
         aria-hidden
       />
-      <div className="container relative flex flex-col items-center gap-3 text-center">
+      <div className="container relative flex flex-col items-center gap-3 px-4 sm:px-6 text-center">
         <Reveal>
           <span className="text-xs font-medium uppercase tracking-wider text-primary">Why users trust us</span>
         </Reveal>

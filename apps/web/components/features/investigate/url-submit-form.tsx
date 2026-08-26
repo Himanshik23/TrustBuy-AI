@@ -135,27 +135,27 @@ export function UrlSubmitForm({ size = "default" }: { size?: "default" | "large"
             }}
             placeholder={
               image
-                ? "Optional: also add the product URL to cross-check against the image"
-                : "Paste a product link - nike.in, amazon.in/product, flipkart.com..."
+                ? "Optional: add product URL"
+                : "Paste a product link (Amazon, Flipkart, Nike...)"
             }
             aria-label="Product URL"
             aria-invalid={touched && Boolean(error)}
             disabled={pending}
             className={cn(
-              "flex w-full rounded-xl border bg-surface pr-28 text-foreground placeholder:text-muted-foreground transition-all",
+              "flex w-full rounded-xl border bg-surface pr-24 text-foreground placeholder:text-muted-foreground transition-all sm:pr-28",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               "disabled:cursor-not-allowed disabled:opacity-50",
-              large ? "h-14 pl-5 text-base sm:text-lg" : "h-12 pl-4 text-base",
+              large ? "h-14 pl-4 text-sm sm:pl-5 sm:text-lg" : "h-12 pl-3 text-sm sm:pl-4 sm:text-base",
               touched && error ? "border-destructive" : "border-input"
             )}
           />
-          <div className="absolute inset-y-0 right-2 flex items-center gap-1">
+          <div className="absolute inset-y-0 right-2 flex items-center gap-0.5 sm:gap-1">
             {url && !pending && (
               <button
                 type="button"
                 onClick={onClear}
                 aria-label="Clear"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -166,7 +166,7 @@ export function UrlSubmitForm({ size = "default" }: { size?: "default" | "large"
                 onClick={onPasteClick}
                 aria-label="Paste from clipboard"
                 title="Paste from clipboard"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <Clipboard className="h-4 w-4" />
               </button>
@@ -187,7 +187,7 @@ export function UrlSubmitForm({ size = "default" }: { size?: "default" | "large"
                   aria-label="Upload a product image or screenshot instead"
                   title="Upload a product image or screenshot instead"
                   className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-secondary hover:text-foreground",
+                    "flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-secondary hover:text-foreground",
                     image ? "text-primary" : "text-muted-foreground"
                   )}
                 >
@@ -197,7 +197,12 @@ export function UrlSubmitForm({ size = "default" }: { size?: "default" | "large"
             )}
           </div>
         </div>
-        <Button type="submit" size="lg" className={cn(large ? "h-14 px-8 text-base" : "h-12")} disabled={pending || (!url.trim() && !image)}>
+        <Button
+          type="submit"
+          size="lg"
+          className={cn("w-full sm:w-auto", large ? "h-14 px-8 text-base" : "h-12")}
+          disabled={pending || (!url.trim() && !image)}
+        >
           {pending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" /> Investigating...

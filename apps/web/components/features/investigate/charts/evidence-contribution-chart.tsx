@@ -23,10 +23,14 @@ function truncate(text: string, max = 42) {
 }
 
 export function EvidenceContributionChart({ items }: { items: EvidenceItemOut[] }) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+  const maxChars = isMobile ? 22 : 42;
+  const yWidth = isMobile ? 120 : 200;
+
   const data = items
     .map((item) => ({
       id: item.id,
-      label: truncate(item.summary),
+      label: truncate(item.summary, maxChars),
       fullText: item.summary,
       polarity: item.polarity,
       // Signed so "contradicts" bars extend left of zero and "supports"
@@ -46,7 +50,7 @@ export function EvidenceContributionChart({ items }: { items: EvidenceItemOut[] 
           <YAxis
             type="category"
             dataKey="label"
-            width={200}
+            width={yWidth}
             tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}

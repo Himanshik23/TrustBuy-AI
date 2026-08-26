@@ -133,7 +133,7 @@ export function CopilotPanel({ investigationId }: { investigationId: string }) {
     return (
       <Button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-40 h-12 rounded-full px-5 shadow-lg"
+        className="fixed bottom-4 right-4 z-40 h-12 rounded-full px-4 shadow-lg sm:bottom-6 sm:right-6 sm:px-5"
         aria-label="Open AI Purchase Assistant"
       >
         <MessageCircle className="h-4 w-4" /> Ask the Copilot
@@ -144,7 +144,7 @@ export function CopilotPanel({ investigationId }: { investigationId: string }) {
   const showChips = !isSending && !isStarting && !isHydrating;
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex h-[32rem] w-96 max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-xl animate-slide-up">
+    <div className="fixed inset-x-3 bottom-4 z-40 flex h-[30rem] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl animate-slide-up sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[32rem] sm:w-96 sm:rounded-lg">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
           <p className="text-sm font-semibold">AI Purchase Assistant</p>

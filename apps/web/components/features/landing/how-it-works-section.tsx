@@ -13,7 +13,7 @@ const STEPS = [
 
 export function HowItWorksSection() {
   return (
-    <section className="container flex flex-col items-center gap-3 py-24 text-center">
+    <section className="container flex flex-col items-center gap-3 px-4 sm:px-6 py-12 sm:py-24 text-center">
       <Reveal>
         <span className="text-xs font-medium uppercase tracking-wider text-primary">How it works</span>
       </Reveal>

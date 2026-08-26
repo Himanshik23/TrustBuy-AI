@@ -17,6 +17,9 @@ function toneFor(run: AgentSummary | undefined): string {
 }
 
 export function AgentConfidenceChart({ agentSummary }: { agentSummary: AgentSummary[] }) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+  const yWidth = isMobile ? 100 : 132;
+
   const byName = new Map(agentSummary.map((a) => [a.agent, a]));
   const data = ALL_AGENTS.map((key) => {
     const run = byName.get(key);
@@ -37,8 +40,8 @@ export function AgentConfidenceChart({ agentSummary }: { agentSummary: AgentSumm
           <YAxis
             type="category"
             dataKey="name"
-            width={132}
-            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+            width={yWidth}
+            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
           />

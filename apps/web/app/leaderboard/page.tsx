@@ -18,7 +18,7 @@ export default function LeaderboardPage() {
   const { data: entries, isLoading } = useLeaderboard();
 
   return (
-    <div className="container max-w-2xl py-10">
+    <div className="container max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
       <div className="mb-6 flex items-center gap-2">
         <Trophy className="h-5 w-5 text-primary" aria-hidden />
         <h1 className="text-2xl font-semibold tracking-tight">Community Leaderboard</h1>
@@ -30,13 +30,15 @@ export default function LeaderboardPage() {
         <CardContent className="flex flex-col divide-y divide-border p-0">
           {isLoading && <p className="p-6 text-sm text-muted-foreground">Loading...</p>}
           {entries?.map((entry, index) => (
-            <div key={entry.id} className="flex items-center justify-between gap-4 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <span className="w-6 text-sm font-medium text-muted-foreground">#{index + 1}</span>
-                <span className="text-sm font-medium">{entry.display_name}</span>
-                <Badge variant="secondary">{REPUTATION_LABEL[entry.reputation_level] ?? entry.reputation_level}</Badge>
+            <div key={entry.id} className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="w-5 text-sm font-medium text-muted-foreground sm:w-6">#{index + 1}</span>
+                <span className="text-sm font-medium text-foreground">{entry.display_name}</span>
+                <Badge variant="secondary" className="text-xs">
+                  {REPUTATION_LABEL[entry.reputation_level] ?? entry.reputation_level}
+                </Badge>
               </div>
-              <span className="text-sm font-semibold">{entry.trust_points} pts</span>
+              <span className="shrink-0 text-sm font-semibold">{entry.trust_points} pts</span>
             </div>
           ))}
         </CardContent>

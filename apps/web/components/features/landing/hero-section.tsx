@@ -21,7 +21,7 @@ export function HeroSection() {
   const reduce = useReducedMotion();
 
   return (
-    <section className="relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden px-6 pb-16 pt-20 text-center">
+    <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 pb-16 pt-12 sm:px-6 sm:pt-20 text-center">
       <BackgroundFX />
 
       <motion.span
@@ -34,7 +34,7 @@ export function HeroSection() {
         AI Purchase Intelligence Platform
       </motion.span>
 
-      <h1 className="relative z-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-3 text-balance text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
+      <h1 className="relative z-10 flex max-w-4xl flex-wrap items-center justify-center gap-x-2 text-balance text-3xl font-semibold tracking-tight sm:gap-x-3 sm:text-6xl md:text-7xl">
         {HEADLINE_WORDS.map((word, i) => (
           <motion.span
             key={word}

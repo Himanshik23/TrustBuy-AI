@@ -8,7 +8,7 @@ import { Reveal } from "@/components/features/landing/reveal";
 
 export function CtaSection() {
   return (
-    <section className="relative overflow-hidden border-y border-border/60 px-6 py-28 text-center">
+    <section className="relative overflow-hidden border-y border-border/60 px-4 sm:px-6 py-16 sm:py-28 text-center">
       <BackgroundFX />
       <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6">
         <Reveal>

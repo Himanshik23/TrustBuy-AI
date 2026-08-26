@@ -140,8 +140,8 @@ export function InvestigationView({ id }: { id: string }) {
 
       {/* PRODUCT + SELLER */}
       <Card>
-        <CardHeader className="flex-row items-start justify-between gap-4 space-y-0">
-          <div className="flex items-start gap-4">
+        <CardHeader className="flex-col gap-4 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
             {investigation.product?.image_url && (
               <img
                 src={investigation.product.image_url}
@@ -173,7 +173,7 @@ export function InvestigationView({ id }: { id: string }) {
             </div>
           </div>
           {investigation.product?.current_price != null && (
-            <p className="text-lg font-semibold">
+            <p className="text-lg font-semibold sm:self-start">
               {investigation.product.currency} {investigation.product.current_price.toFixed(2)}
             </p>
           )}
@@ -197,7 +197,7 @@ export function InvestigationView({ id }: { id: string }) {
               <ExportReportButton investigationId={investigation.investigation_id} />
             </div>
 
-            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:text-left">
               <RadialScore
                 value={Math.round(investigation.recommendation.confidence * 100)}
                 label="Confidence"
