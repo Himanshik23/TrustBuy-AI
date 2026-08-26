@@ -29,13 +29,22 @@ class TokenError(Exception):
 @lru_cache
 def _private_key() -> str:
     path = Path(os.environ.get("JWT_PRIVATE_KEY_PATH", "/keys/private.pem"))
+    pub_path = Path(os.environ.get("JWT_PUBLIC_KEY_PATH", "/keys/public.pem"))
+    if not path.exists():
+        from trustbuy_auth.keys import ensure_keypair
+        ensure_keypair(path, pub_path)
     return path.read_text()
 
 
 @lru_cache
 def _public_key() -> str:
     path = Path(os.environ.get("JWT_PUBLIC_KEY_PATH", "/keys/public.pem"))
+    priv_path = Path(os.environ.get("JWT_PRIVATE_KEY_PATH", "/keys/private.pem"))
+    if not path.exists():
+        from trustbuy_auth.keys import ensure_keypair
+        ensure_keypair(priv_path, path)
     return path.read_text()
+
 
 
 def create_access_token(

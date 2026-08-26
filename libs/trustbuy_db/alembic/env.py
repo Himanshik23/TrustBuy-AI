@@ -24,11 +24,18 @@ def _sync_database_url() -> str:
     swapping the driver (see trustbuy_db/base.py docstring)."""
     explicit = os.environ.get("DATABASE_URL_SYNC")
     if explicit:
-        return explicit
-    async_url = os.environ.get("DATABASE_URL")
-    if not async_url:
-        raise RuntimeError("Set DATABASE_URL_SYNC or DATABASE_URL before running Alembic.")
-    return async_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+        url = explicit
+    else:
+        async_url = os.environ.get("DATABASE_URL")
+        if not async_url:
+            raise RuntimeError("Set DATABASE_URL_SYNC or DATABASE_URL before running Alembic.")
+        url = async_url
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg2://" + url[len("postgres://"):]
+    elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        return "postgresql+psycopg2://" + url[len("postgresql://"):]
+    return url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+
 
 
 def run_migrations_offline() -> None:

@@ -35,7 +35,12 @@ def _database_url() -> str:
             "DATABASE_URL is not set. Expected a postgresql+asyncpg:// URL - "
             "see .env.example in the repo root."
         )
+    if url.startswith("postgres://"):
+        url = "postgresql+asyncpg://" + url[len("postgres://"):]
+    elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        url = "postgresql+asyncpg://" + url[len("postgresql://"):]
     return url
+
 
 
 def get_engine() -> AsyncEngine:
